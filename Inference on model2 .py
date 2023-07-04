@@ -20,6 +20,11 @@ x0_right = np.array(x0_right).flatten()
 
 xdata = (x0_left + x0_right) / 2
 
+for i in range(4):
+     y_data[i, ] = np.array(pd.read_excel('data.xlsx', sheet_name = '1205Lu', usecols = [4*i+7], skiprows = [1,2])).flatten()
+for i in range(4,8):
+     y_data[i, ] = np.array(pd.read_excel('data.xlsx', sheet_name = '1205Lu', usecols = [4*(i-2)], skiprows = [1,2])).flatten()
+    
 # True parameters
 Dr = 400
 Dg = 400
