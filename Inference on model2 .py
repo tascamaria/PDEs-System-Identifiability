@@ -30,7 +30,7 @@ Dr = 400
 Dg = 400
 kr = 0.035
 kg = 0.038
-K = 0.004
+#K = 0.004
 ptrue_short = [400,400, 0.035, 0.038, 0.004]
 sigma = 0.01
 
@@ -39,22 +39,22 @@ sigma = 0.01
 
 
 n = 101
-x = np.linspace(0,x0_right[-1],n)
+x = np.linspace(0,x0_left[-1],n)
 dx = x[1]-x[0]
 
 t = np.linspace(0,48,4)
 
 YR0 = pd.read_excel('data.xlsx', sheet_name = '1205Lu' , usecols = 'H', skiprows = [1, 2])
 YR0 = np.array(YR0).flatten()
-YR0 = YR0/((x0_right-x0_left)*K*1745)
+YR0 = YR0/((x0_right-x0_left)*1745)
 
 YG0 = pd.read_excel('data.xlsx', sheet_name = '1205Lu' , usecols = 'I', skiprows = [1, 2])
 YG0 = np.array(YG0).flatten()
-YG0 = YG0/((x0_right-x0_left)*1745*K)
+YG0 = YG0/((x0_right-x0_left)*1745)
 
 S0 = pd.read_excel('data.xlsx', sheet_name = '1205Lu', usecols = 'J', skiprows = [1, 2])
 S0 = np.array(S0).flatten()
-S0 = S0/(1745*(x0_right-x0_left)*K)
+S0 = S0/(1745*(x0_right-x0_left))
 
 cr0 = interpolate.interp1d(x0_left, YR0)
 xnew = np.linspace(0, 1254.5, 500)
@@ -69,8 +69,7 @@ snew0 = s0(xnew)
 y0_0 = np.hstack((cr0(x),cg0(x)))
 
 ## Perform inference
-ptrue = np.array([Dr, Dg, kr, kg, K, sigma])
-
+#ptrue = np.array([Dr, Dg, kr, kg, K, sigma])
 
 # Generate model predictions
 def solve_model(p):
@@ -114,26 +113,26 @@ def solve_model(p):
     return(y_match_data)
 
 # Generate some data
-v = solve_model(ptrue)
+#v = solve_model(ptrue)
 
-y = v + sigma*(np.random.randn(np.shape(v)[0], np.shape(v)[1]))
+#y = v + sigma*(np.random.randn(np.shape(v)[0], np.shape(v)[1]))
 
 
 ###
 # y = solve_model(ptrue)
-# yend = y[7,]
+# yend = y_data[7,]
 
-# plt.plot(x,yend)
-# plt.show()
+plt.plot(x,yend)
+plt.show()
 
-# xdata = (x0_left + x0_right) / 2
-# plt.scatter(xdata,YR0)
-# plt.show()
+xdata = (x0_left + x0_right) / 2
+plt.scatter(xdata,YR0)
+plt.show()
 
-# yend_match = interpolate.interp1d(x, y)(xdata)
-# plt.plot(x,y[6,])
-# plt.scatter(xdata,yend_match[6,])
-# plt.show()
+yend_match = interpolate.interp1d(x, y)(xdata)
+plt.plot(x,y[6,])
+plt.scatter(xdata,yend_match[6,])
+plt.show()
 
 ###
 
