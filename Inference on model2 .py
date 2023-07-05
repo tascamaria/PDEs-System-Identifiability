@@ -89,9 +89,9 @@ def solve_model(p):
         dv[n-1] += 2* Dg/ dx ** 2 * (v[n-2]-v[n-1])
         return (du,dv)
     def f1(vr,vg):
-        return -kr/K*vr+2* kg/K * vg * (1 - (vg+vr)/K)
+        return -kr*vr+2* kg * vg * (1 - (vg+vr)/K)
     def f2(vr,vg):
-        return -kg/K*vg*(1-(vg+vr)/K)+kr/K*vr
+        return -kg*vg*(1-(vg+vr)/K)+kr*vr
 
     def ode(y,t):
         u = y[0:n]
