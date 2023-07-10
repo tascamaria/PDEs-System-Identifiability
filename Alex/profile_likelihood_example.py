@@ -13,7 +13,7 @@ import profile_likelihood
 r = 1.0
 K = 2.0
 u0 = 0.1
-sigma = 0.1
+sigma = 0.2
 
 # Vector of true values
 ptrue = np.array([r,K,u0,sigma])
@@ -58,7 +58,8 @@ print("MLE is",pmle)
 Kvals = np.linspace(1.5,2.5,20)
 Kprof = profile_parameter(negloglike,Kvals,1,4,pmle)
 
-## Plot the results
+# Calculate profile-likelihood-based confidence interval
+Kci = profile_parameter_ci(negloglike,1,4,pmle,[1.0,3.0])
 
 # Data against the model fit
 fig = plt.subplot(1,2,1)
@@ -67,7 +68,9 @@ plt.plot(T,solve_model(pmle),color='b',label="Model")
 
 # Profile loglikelihood for K
 plt.subplot(1,2,2)
-plt.plot(Kvals,Kprof)
-plt.axhline(y=negloglike(pmle)+1.92,color='k',linestyle='--')
+plt.plot(Kvals,Kprof - negloglike(pmle))        # Plot profile likelihood curve
+plt.axhline(y=1.92,color='k',linestyle='--')    # Plot 95% cutoff
+plt.scatter(Kci,[1.92,1.92],color='k',linestyle='--')     # Plot 95% CI intersections
 plt.xlabel("K")
-plt.show()
+plt.show(block=False)
+
