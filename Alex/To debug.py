@@ -105,53 +105,8 @@ def solve_model(p):
     y_match_data = interpolate.interp1d(x, y, bounds_error= False, fill_value = "extrapolate")(xdata)
     return(y_match_data)
 
-# def alpha_function(p):
-#     # Get the parameters
-#     [Dr, Dg, kr, kg, K ,sigma]  = p
-#     # Solve the model
-#     def rhs(u,v,f, g, t):
-#         du = f(u,v)
-#         dv = g(u,v)
-#         for i in range(1,n-2):
-#                 du[i] += Dr/ dx** 2 * (u[i-1]-2*u[i]+u[i+1])
-#                 dv[i] += Dg/ dx** 2 * (v[i+1]-2*v[i]+ v[i-1])
-#         du[0] += 2 * Dr/ dx ** 2 * (u[1]-u[0])
-#         dv[0] += 2 * Dg/ dx ** 2 * (v[1]-v[0])
-#         du[n-1] += 2* Dr/ dx ** 2 * (u[n-2]-u[n-1])
-#         dv[n-1] += 2* Dg/ dx ** 2 * (v[n-2]-v[n-1])
-#         return (du,dv)
-#     def f1(vr,vg):
-#         return -kr*vr+2* kg * vg * (1 - (vg+vr)/K)
-#     def f2(vr,vg):
-#         return -kg*vg*(1-(vg+vr)/K)+kr*vr
-
-#     def ode(y,t):
-#         u = y[0:n]
-#         v = y[n:]
-#         (du,dv) = rhs(u,v,f1,f2,t)
-#         dy = np.hstack((du,dv))
-#         return dy
-#     u0 = y0_0[0:n]
-#     v0 = y0_0[n:]
-
-#     y_sol0 = odeint(ode,y0_0,t)
-#     Y_0 = np.vstack(y_sol0)
-#     U_0 = Y_0[0:7,0:n]
-#     V_0 = Y_0[0:7, n:]
-#     y = U_0+V_0
-#     alpha = np.zeros((7,n))
-#     for i in range(7):
-#          for j in range(n):
-#              alpha[i,j] = U_0[i,j] / y[i,j]
-#     alpha_interp = interpolate.interp1d(x, alpha, bounds_error =  False, fill_value = "extrapolate")(x0_left)
-#     #plt.plot(x0_left, np.transpose(alpha_interp[1, ]))
-#     #plt.show()
-#     return(alpha_interp)
-
 # Generate some data
-# a = alpha_function(ptrue)
 v = solve_model(ptrue)
-
 ydata = v + sigma*(np.random.randn(np.shape(v)[0], np.shape(v)[1]))
 
 def negloglike(p):
@@ -170,12 +125,103 @@ def negloglike(p):
 res = minimize_posparam(negloglike,ptrue)
 pmle = res.x
 print("MLE is",pmle)
+plt.figure(figsize =(15,9))
 
-val = np.linspace(0.02,0.05,10)
+plt.subplots(2,4,1)
+val = np.linspace(100,600,10)
+prof = profile_parameter(negloglike,val,0,len(ptrue),pmle)
+plt.plot(val,prof)
+h = negloglike(pmle) + 1.92
+plt.axhline(y=h, color='k',linestyle='--')
+plt.xlabel("Dr")
+profx = scipy.interpolate.interp1d(val, prof)
+profreduced = np.array(prof) - h
+profxreduced =  scipy.interpolate.interp1d(val, profreduced)
+from scipy.optimize import fsolve
+idx = fsolve(profxreduced, [350, 500])
+plt.plot(idx, profx(idx),'ro')
+
+plt.subplots(2,4,2)
+val = np.linspace(300,500,10)
+prof = profile_parameter(negloglike,val,1,len(ptrue),pmle)
+plt.plot(val,prof)
+h = negloglike(pmle) + 1.92
+plt.axhline(y=h, color='k',linestyle='--')
+plt.xlabel("Dg")
+profx = scipy.interpolate.interp1d(val, prof)
+profreduced = np.array(prof) - h
+profxreduced =  scipy.interpolate.interp1d(val, profreduced)
+from scipy.optimize import fsolve
+idx = fsolve(profxreduced, [350, 500])
+plt.plot(idx, profx(idx),'ro')
+plt.show()
+
+plt.subplots(2,4,3)
+val = np.linspace(0.03,0.04,10)
 prof = profile_parameter(negloglike,val,2,len(ptrue),pmle)
+plt.plot(val,prof)
+h = negloglike(pmle) + 1.92
+plt.axhline(y=h, color='k',linestyle='--')
+plt.xlabel("kr")
+profx = scipy.interpolate.interp1d(val, prof)
+profreduced = np.array(prof) - h
+profxreduced =  scipy.interpolate.interp1d(val, profreduced)
+from scipy.optimize import fsolve
+idx = fsolve(profxreduced, [0.03, 0.04])
+plt.plot(idx, profx(idx),'ro')
 
-# adata = alpha_function(pmle)
+plt.subplots(2,4,4)
+val = np.linspace(0.03,0.05,10)
+prof = profile_parameter(negloglike,val,3,len(ptrue),pmle)
+plt.plot(val,prof)
+h = negloglike(pmle) + 1.92
+plt.axhline(y=h, color='k',linestyle='--')
+plt.xlabel("kg")
+profx = scipy.interpolate.interp1d(val, prof)
+profreduced = np.array(prof) - h
+profxreduced =  scipy.interpolate.interp1d(val, profreduced)
+from scipy.optimize import fsolve
+idx = fsolve(profxreduced, [0.035, 0.045])
+plt.plot(idx, profx(idx),'ro')
 
-# plt.plot(x0_left, adata[1,], color = 'r')
-# plt.plot(x0_left, a[1,], color = 'b')
-# plt.show()
+plt.subplots(2,4,5)
+val = np.linspace(0.003,0.005,10)
+prof = profile_parameter(negloglike,val,4,len(ptrue),pmle)
+plt.plot(val,prof)
+h = negloglike(pmle) + 1.92
+plt.axhline(y=h, color='k',linestyle='--')
+plt.xlabel("K")
+profx = scipy.interpolate.interp1d(val, prof)
+profreduced = np.array(prof) - h
+profxreduced =  scipy.interpolate.interp1d(val, profreduced)
+from scipy.optimize import fsolve
+idx = fsolve(profxreduced, [0.0035, 0.0045])
+plt.plot(idx, profx(idx),'ro')
+
+plt.subplots(2,4,6)
+val = np.linspace(0.00001,0.00003,50)
+prof = profile_parameter(negloglike,val,5,len(ptrue),pmle)
+plt.plot(val,prof)
+h = negloglike(pmle) + 1.92
+plt.axhline(y=h, color='k',linestyle='--')
+plt.xlabel("sigma")
+profx = scipy.interpolate.interp1d(val, prof)
+profreduced = np.array(prof) - h
+profxreduced =  scipy.interpolate.interp1d(val, profreduced)
+from scipy.optimize import fsolve
+idx = fsolve(profxreduced, [0.00002, 0.000025])
+plt.plot(idx, profx(idx),'ro')
+
+plt.subplots(2,4,7)
+val = np.linspace(0,1,10)
+prof = profile_parameter(negloglike,val,6,len(ptrue),pmle)
+plt.plot(val,prof)
+h = negloglike(pmle) + 1.92
+plt.axhline(y=h, color='k',linestyle='--')
+plt.xlabel("alpha")
+profx = scipy.interpolate.interp1d(val, prof)
+profreduced = np.array(prof) - h
+profxreduced =  scipy.interpolate.interp1d(val, profreduced)
+from scipy.optimize import fsolve
+idx = fsolve(profxreduced, [0.55, 0.045])
+plt.plot(idx, profx(idx),'ro')
