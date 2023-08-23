@@ -9,7 +9,7 @@ def normal_logpdf(x,sigma):
 # Maximise function (ensuring parameters are all positive)
 def minimize_posparam(func,x0):
     func2 = lambda lx : func(np.exp(lx))
-    res = scipy.optimize.minimize(func2,np.log(x0),method="COBYLA")
+    res = scipy.optimize.minimize(func2,np.log(x0),method="CG")
     res.x = np.exp(res.x)
     return res
 
@@ -40,7 +40,10 @@ def profile_parameter(negloglike,xv,i,n,z0):
     # The optimum (profile) at this value of x
     def optim_negloglike_partial(x):
         func = lambda z : negloglike_partial(x,z)
-        return minimize_posparam(func,z0).fun
+        res = minimize_posparam(func,z0)
+        print(x)
+        print(res.message)
+        return res.fun
     # Calculate and return complete profile
     return np.array([optim_negloglike_partial(x) for x in xv])
 
